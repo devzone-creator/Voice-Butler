@@ -13,7 +13,8 @@
 - [x] 2. Implement core data models and local storage
 
 
-  - [ ] 2.1 Create Task model with all required fields
+  - [x] 2.1 Create Task model with all required fields
+
     - Implement Task class with id, title, priority, reason, deadline, status, timestamps
     - Add TaskPriority and TaskStatus enums
     - Include isDeleted and recentDeleted flags for soft delete functionality
@@ -24,9 +25,11 @@
 
 
 
+
   - [ ] 2.2 Write property test for Task model data integrity
     - **Property 4: Task Creation Consistency**
     - **Validates: Requirements 1.4**
+
 
 
   - [ ] 2.3 Create AutomationRule and ActivityLog models
@@ -63,6 +66,7 @@
 
 
 
+
   - [ ] 3.1 Set up voice input service
     - Integrate speech_to_text package for voice capture
     - Implement recording start/stop functionality with proper permissions
@@ -73,9 +77,11 @@
 
 
 
-  - [ ] 3.2 Write property test for voice input reliability
+  - [x] 3.2 Write property test for voice input reliability
+
     - **Property 1: Voice Input Processing Reliability**
     - **Validates: Requirements 1.1, 1.5**
+
 
 
 
@@ -89,11 +95,15 @@
 
 - [x] 4. Implement AI intent extraction service
 
-  - [ ] 4.1 Set up Gemini AI integration
+
+  - [x] 4.1 Set up Gemini AI integration
+
     - Configure Gemini API client for intent extraction
     - Implement API request/response handling with error management
     - Add rate limiting and retry logic for API calls
     - _Requirements: 1.2, 1.5_
+
+
 
   - [ ] 4.2 Create intent extraction logic
     - Implement speech-to-task-data conversion using AI
@@ -101,89 +111,124 @@
     - Add structured fallback parsing for when AI fails
     - _Requirements: 1.2, 1.3_
 
+
+
   - [ ] 4.3 Write property test for AI intent extraction
     - **Property 2: AI Intent Extraction Completeness**
     - **Validates: Requirements 1.2**
 
   - [x] 4.4 Implement task preview functionality
 
+
+
     - Create task preview UI showing extracted data
     - Allow user confirmation or manual editing before task creation
     - Ensure preview accuracy matches extracted intent data
     - _Requirements: 1.3, 1.4_
 
+
+
+
+
+
   - [ ] 4.5 Write property test for task preview accuracy
     - **Property 3: Task Preview Accuracy**
     - **Validates: Requirements 1.3**
 
+
 - [ ] 5. Build core task management features
-  - [ ] 5.1 Implement task creation workflow
+  - [x] 5.1 Implement task creation workflow
+
     - Connect voice input → AI extraction → preview → confirmation → storage
     - Handle task creation from confirmed preview data
     - Ensure immediate persistence of new tasks
     - _Requirements: 1.4, 6.1_
 
+
+
   - [ ] 5.2 Write property test for task creation consistency
     - **Property 4: Task Creation Consistency**
     - **Validates: Requirements 1.4**
+
+
 
   - [ ] 5.3 Create task list display component
     - Implement task list UI showing pending and completed tasks
     - Add priority indicators and visual status differentiation
     - Include task completion and deletion actions
+
     - _Requirements: 2.1, 2.2, 7.2_
 
-  - [ ] 5.4 Write property test for task list completeness
+
+  - [x] 5.4 Write property test for task list completeness
+
     - **Property 5: Task List Display Completeness**
     - **Validates: Requirements 2.1**
 
+
   - [ ] 5.5 Implement task completion functionality
     - Add task completion logic with status updates
+
     - Move completed tasks to completed section
     - Update task timestamps and persist changes
     - _Requirements: 2.2, 6.1_
+
+
 
   - [ ] 5.6 Write property test for task completion state transition
     - **Property 6: Task Completion State Transition**
     - **Validates: Requirements 2.2**
 
+
 - [ ] 6. Implement soft delete and recovery system
   - [ ] 6.1 Create soft delete functionality
     - Implement task soft delete with isDeleted flag
+
     - Move deleted tasks to Recently Deleted state
     - Ensure soft deleted tasks are hidden from main task list
     - _Requirements: 2.3, 2.4_
 
-  - [ ] 6.2 Write property test for soft delete behavior
+  - [x] 6.2 Write property test for soft delete behavior
+
     - **Property 7: Soft Delete Behavior**
     - **Validates: Requirements 2.3**
 
-  - [ ] 6.3 Build Recently Deleted interface
+
+  - [x] 6.3 Build Recently Deleted interface
+
+
     - Create UI for viewing soft-deleted tasks
+
     - Add restore and permanent delete options
     - Implement task recovery functionality
     - _Requirements: 2.4_
 
-  - [ ] 6.4 Write property test for Recently Deleted display
+  - [x] 6.4 Write property test for Recently Deleted display
+
     - **Property 8: Recently Deleted Display**
     - **Validates: Requirements 2.4**
+
 
   - [ ] 6.5 Implement automatic cleanup system
     - Add background job for cleaning up old soft-deleted tasks
     - Automatically remove tasks older than 7 days from recentDeleted
+
     - Ensure cleanup runs reliably across app restarts
     - _Requirements: 2.5, 6.5_
 
   - [ ] 6.6 Write property test for automatic task cleanup
     - **Property 9: Automatic Task Cleanup**
+
     - **Validates: Requirements 2.5**
 
-- [ ] 7. Checkpoint - Ensure all core functionality tests pass
+- [x] 7. Checkpoint - Ensure all core functionality tests pass
+
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 8. Implement basic automation system
   - [ ] 8.1 Create automation rule engine
     - Implement basic automation rule processing
+
     - Add predefined rules for deadline reminders and priority-based actions
     - Create rule execution scheduler for background processing
     - _Requirements: 3.1, 3.2, 3.5_

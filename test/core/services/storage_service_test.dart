@@ -404,7 +404,7 @@ Map<String, dynamic> _generateRandomTaskData(int seed) {
     'Code quality improvement',
   ];
   
-  final priorities = TaskPriority.values;
+  const priorities = TaskPriority.values;
   
   return {
     'title': titles[random.nextInt(titles.length)],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../voice/providers/voice_provider.dart';
 import '../../voice/widgets/widgets.dart';
 import '../../ai/providers/ai_provider.dart';
@@ -89,12 +90,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        // TODO: Navigate to tasks when implemented
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Tasks screen coming soon!')),
-                        );
-                      },
+                      onPressed: () => context.push('/tasks'),
                       icon: const Icon(Icons.list),
                       label: const Text('Tasks'),
                     ),
@@ -102,12 +98,7 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        // TODO: Navigate to activity feed when implemented
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Activity feed coming soon!')),
-                        );
-                      },
+                      onPressed: () => context.push('/activity-feed'),
                       icon: const Icon(Icons.history),
                       label: const Text('Activity'),
                     ),

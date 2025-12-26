@@ -1,11 +1,17 @@
-import 'package:workmanager/workmanager.dart';
 import 'package:flutter/foundation.dart';
 import '../app_config.dart';
 import 'storage_service.dart';
 
+// Only import workmanager on mobile platforms
+import 'package:workmanager/workmanager.dart' if (dart.library.html) 'background_service_web.dart' as workmanager_lib;
+
 @pragma('vm:entry-point')
 void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
+  if (kIsWeb) {
+    return; // Skip on web
+  }
+  
+  workmanager_lib.Workmanager().executeTask((task, inputData) async {
     try {
       switch (task) {
         case AppConfig.cleanupJobName:
@@ -86,28 +92,52 @@ class BackgroundService {
   BackgroundService._internal();
 
   Future<void> initialize() async {
-    await Workmanager().initialize(
-      callbackDispatcher,
-      isInDebugMode: kDebugMode,
-    );
-    
-    // Schedule daily cleanup task
-    await scheduleCleanupTask();
+    // Only initialize on mobile platforms
+    if (kIsWeb) {
+      if (kDebugMode) {
+        print('Background service not supported on web platform');
+      }
+      return;
+    }
+
+    try {
+      await workmanager_lib.Workmanager().initialize(
+        callbackDispatcher,
+        isInDebugMode: kDebugMode,
+      );
+      
+      // Schedule daily cleanup task
+      await scheduleCleanupTask();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to initialize background service: $e');
+      }
+    }
   }
 
   Future<void> scheduleCleanupTask() async {
-    await Workmanager().registerPeriodicTask(
-      AppConfig.cleanupJobName,
-      AppConfig.cleanupJobName,
-      frequency: const Duration(days: 1),
-      constraints: Constraints(
-        networkType: NetworkType.not_required,
-        requiresBatteryNotLow: false,
-        requiresCharging: false,
-        requiresDeviceIdle: false,
-        requiresStorageNotLow: false,
-      ),
-    );
+    if (kIsWeb) {
+      return;
+    }
+
+    try {
+      await workmanager_lib.Workmanager().registerPeriodicTask(
+        AppConfig.cleanupJobName,
+        AppConfig.cleanupJobName,
+        frequency: const Duration(days: 1),
+        constraints: workmanager_lib.Constraints(
+          networkType: workmanager_lib.NetworkType.not_required,
+          requiresBatteryNotLow: false,
+          requiresCharging: false,
+          requiresDeviceIdle: false,
+          requiresStorageNotLow: false,
+        ),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to schedule cleanup task: $e');
+      }
+    }
   }
 
   Future<void> scheduleTaskReminder({
@@ -115,25 +145,55 @@ class BackgroundService {
     required DateTime reminderTime,
     required String reminderType,
   }) async {
-    final uniqueId = '${AppConfig.reminderJobName}_${taskId}_$reminderType';
-    
-    await Workmanager().registerOneOffTask(
-      uniqueId,
-      AppConfig.reminderJobName,
-      initialDelay: reminderTime.difference(DateTime.now()),
-      inputData: {
-        'taskId': taskId,
-        'reminderType': reminderType,
-      },
-    );
+    if (kIsWeb) {
+      return;
+    }
+
+    try {
+      final uniqueId = '${AppConfig.reminderJobName}_${taskId}_$reminderType';
+      
+      await workmanager_lib.Workmanager().registerOneOffTask(
+        uniqueId,
+        AppConfig.reminderJobName,
+        initialDelay: reminderTime.difference(DateTime.now()),
+        inputData: {
+          'taskId': taskId,
+          'reminderType': reminderType,
+        },
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to schedule task reminder: $e');
+      }
+    }
   }
 
   Future<void> cancelTaskReminder(String taskId, String reminderType) async {
-    final uniqueId = '${AppConfig.reminderJobName}_${taskId}_$reminderType';
-    await Workmanager().cancelByUniqueName(uniqueId);
+    if (kIsWeb) {
+      return;
+    }
+
+    try {
+      final uniqueId = '${AppConfig.reminderJobName}_${taskId}_$reminderType';
+      await workmanager_lib.Workmanager().cancelByUniqueName(uniqueId);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to cancel task reminder: $e');
+      }
+    }
   }
 
   Future<void> cancelAllTasks() async {
-    await Workmanager().cancelAll();
+    if (kIsWeb) {
+      return;
+    }
+
+    try {
+      await workmanager_lib.Workmanager().cancelAll();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to cancel all tasks: $e');
+      }
+    }
   }
 }

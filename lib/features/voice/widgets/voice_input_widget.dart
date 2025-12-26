@@ -277,19 +277,19 @@ class _VoiceInputWidgetState extends State<VoiceInputWidget> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Voice Input Settings'),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Voice input requires microphone permission.'),
-            const SizedBox(height: 16),
-            const Text('To enable voice input:'),
-            const SizedBox(height: 8),
-            const Text('1. Go to device Settings'),
-            const Text('2. Find this app in Apps/Applications'),
-            const Text('3. Enable Microphone permission'),
-            const SizedBox(height: 16),
-            const Text('You can also use manual text input as an alternative.'),
+            Text('Voice input requires microphone permission.'),
+            SizedBox(height: 16),
+            Text('To enable voice input:'),
+            SizedBox(height: 8),
+            Text('1. Go to device Settings'),
+            Text('2. Find this app in Apps/Applications'),
+            Text('3. Enable Microphone permission'),
+            SizedBox(height: 16),
+            Text('You can also use manual text input as an alternative.'),
           ],
         ),
         actions: [

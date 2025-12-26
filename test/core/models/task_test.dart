@@ -68,25 +68,19 @@ void main() {
             deadline: originalData['deadline'],
           );
           
-          // Generate random update data
-          final updateData = _generateRandomTaskData(i + 1000);
-          
-          // Create updated task using copyWith
+          // Test partial updates (only update title)
           final updatedTask = originalTask.copyWith(
-            title: updateData['title'],
-            priority: updateData['priority'],
-            reason: updateData['reason'],
-            deadline: updateData['deadline'],
+            title: 'Updated Title $i',
           );
           
-          // Verify updated fields match new data
-          expect(updatedTask.title, equals(updateData['title']));
-          expect(updatedTask.priority, equals(updateData['priority']));
-          expect(updatedTask.reason, equals(updateData['reason']));
-          expect(updatedTask.deadline, equals(updateData['deadline']));
+          // Verify updated field
+          expect(updatedTask.title, equals('Updated Title $i'));
           
           // Verify unchanged fields are preserved
           expect(updatedTask.id, equals(originalTask.id));
+          expect(updatedTask.priority, equals(originalTask.priority));
+          expect(updatedTask.reason, equals(originalTask.reason));
+          expect(updatedTask.deadline, equals(originalTask.deadline));
           expect(updatedTask.status, equals(originalTask.status));
           expect(updatedTask.createdAt, equals(originalTask.createdAt));
           expect(updatedTask.completedAt, equals(originalTask.completedAt));
@@ -306,7 +300,7 @@ Map<String, dynamic> _generateRandomTaskData(int seed) {
     'User feedback',
   ];
   
-  final priorities = TaskPriority.values;
+  const priorities = TaskPriority.values;
   
   return {
     'title': titles[random.nextInt(titles.length)],

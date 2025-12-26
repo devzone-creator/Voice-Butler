@@ -1,4 +1,4 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart' show AndroidFlutterLocalNotificationsPlugin, AndroidInitializationSettings, AndroidNotificationChannel, AndroidNotificationDetails, AndroidScheduleMode, DarwinInitializationSettings, DarwinNotificationDetails, FlutterLocalNotificationsPlugin, IOSFlutterLocalNotificationsPlugin, Importance, InitializationSettings, NotificationDetails, NotificationResponse, Priority, UILocalNotificationDateInterpretation;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' show AndroidFlutterLocalNotificationsPlugin, AndroidInitializationSettings, AndroidNotificationChannel, AndroidNotificationDetails, DarwinInitializationSettings, DarwinNotificationDetails, FlutterLocalNotificationsPlugin, IOSFlutterLocalNotificationsPlugin, Importance, InitializationSettings, NotificationDetails, NotificationResponse, Priority;
 import 'package:flutter/foundation.dart';
 import '../app_config.dart';
 

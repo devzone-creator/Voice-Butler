@@ -107,6 +107,7 @@ class Task extends Equatable {
     DateTime? deletedAt,
     bool? isDeleted,
     bool? recentDeleted,
+    bool clearDeletedAt = false,
   }) {
     return Task(
       id: id ?? this.id,
@@ -117,7 +118,7 @@ class Task extends Equatable {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: clearDeletedAt ? null : (deletedAt ?? this.deletedAt),
       isDeleted: isDeleted ?? this.isDeleted,
       recentDeleted: recentDeleted ?? this.recentDeleted,
     );
@@ -146,9 +147,9 @@ class Task extends Equatable {
   Task restore() {
     return copyWith(
       status: TaskStatus.pending,
-      deletedAt: null,
       isDeleted: false,
       recentDeleted: false,
+      clearDeletedAt: true,
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -10,6 +11,7 @@ import 'core/services/background_service.dart';
 import 'features/tasks/providers/task_provider.dart';
 import 'features/voice/providers/voice_provider.dart';
 import 'features/ai/providers/ai_provider.dart';
+import 'features/automation/providers/automation_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,17 @@ void main() async {
   // Initialize services
   await StorageService.instance.initialize();
   await NotificationService.instance.initialize();
-  await BackgroundService.instance.initialize();
+  
+  // Only initialize background service on mobile platforms
+  if (!kIsWeb) {
+    try {
+      await BackgroundService.instance.initialize();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Background service initialization failed: $e');
+      }
+    }
+  }
   
   runApp(const VoiceButlerApp());
 }
@@ -35,6 +47,7 @@ class VoiceButlerApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TaskProvider()),
         ChangeNotifierProvider(create: (_) => VoiceProvider()),
         ChangeNotifierProvider(create: (_) => AIProvider()),
+        ChangeNotifierProvider(create: (_) => AutomationProvider()),
       ],
       child: MaterialApp.router(
         title: 'Voice Butler',
