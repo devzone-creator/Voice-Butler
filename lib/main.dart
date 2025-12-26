@@ -8,8 +8,8 @@ import 'core/services/storage_service.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/background_service.dart';
 import 'features/tasks/providers/task_provider.dart';
-import 'features/automation/providers/automation_provider.dart';
 import 'features/voice/providers/voice_provider.dart';
+import 'features/ai/providers/ai_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,8 +33,8 @@ class VoiceButlerApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TaskProvider()),
-        ChangeNotifierProvider(create: (_) => AutomationProvider()),
         ChangeNotifierProvider(create: (_) => VoiceProvider()),
+        ChangeNotifierProvider(create: (_) => AIProvider()),
       ],
       child: MaterialApp.router(
         title: 'Voice Butler',

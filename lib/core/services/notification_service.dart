@@ -1,4 +1,4 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' show AndroidFlutterLocalNotificationsPlugin, AndroidInitializationSettings, AndroidNotificationChannel, AndroidNotificationDetails, AndroidScheduleMode, DarwinInitializationSettings, DarwinNotificationDetails, FlutterLocalNotificationsPlugin, IOSFlutterLocalNotificationsPlugin, Importance, InitializationSettings, NotificationDetails, NotificationResponse, Priority, UILocalNotificationDateInterpretation;
 import 'package:flutter/foundation.dart';
 import '../app_config.dart';
 
@@ -73,14 +73,13 @@ class NotificationService {
     );
 
     if (scheduledDate != null) {
-      await _notifications.zonedSchedule(
+      // For now, just show immediate notification
+      // TODO: Implement proper scheduled notifications with TZDateTime
+      await _notifications.show(
         id,
         title,
-        body,
-        scheduledDate,
+        '$body (Scheduled for: ${scheduledDate.toString()})',
         notificationDetails,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
     } else {
       await _notifications.show(

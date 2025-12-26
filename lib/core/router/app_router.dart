@@ -2,11 +2,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/home/screens/home_screen.dart';
-import '../../features/tasks/screens/task_list_screen.dart';
-import '../../features/tasks/screens/recently_deleted_screen.dart';
-import '../../features/automation/screens/activity_feed_screen.dart';
-import '../../features/automation/screens/advanced_mode_screen.dart';
-import '../../features/voice/screens/voice_input_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -17,31 +12,17 @@ class AppRouter {
         name: 'home',
         builder: (context, state) => const HomeScreen(),
       ),
-      GoRoute(
-        path: '/voice-input',
-        name: 'voice-input',
-        builder: (context, state) => const VoiceInputScreen(),
-      ),
-      GoRoute(
-        path: '/tasks',
-        name: 'tasks',
-        builder: (context, state) => const TaskListScreen(),
-      ),
-      GoRoute(
-        path: '/recently-deleted',
-        name: 'recently-deleted',
-        builder: (context, state) => const RecentlyDeletedScreen(),
-      ),
-      GoRoute(
-        path: '/activity-feed',
-        name: 'activity-feed',
-        builder: (context, state) => const ActivityFeedScreen(),
-      ),
-      GoRoute(
-        path: '/advanced-mode',
-        name: 'advanced-mode',
-        builder: (context, state) => const AdvancedModeScreen(),
-      ),
+      // TODO: Add other routes as screens are implemented
+      // GoRoute(
+      //   path: '/tasks',
+      //   name: 'tasks',
+      //   builder: (context, state) => const TaskListScreen(),
+      // ),
+      // GoRoute(
+      //   path: '/activity-feed',
+      //   name: 'activity-feed',
+      //   builder: (context, state) => const ActivityFeedScreen(),
+      // ),
     ],
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(

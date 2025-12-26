@@ -146,10 +146,12 @@ class VoiceService extends ChangeNotifier {
         onResult: _onSpeechResult,
         listenFor: _listeningTimeout,
         pauseFor: _pauseTimeout,
-        partialResults: true,
         localeId: 'en_US', // Can be made configurable
         onSoundLevelChange: _onSoundLevelChange,
-        cancelOnError: true,
+        listenOptions: SpeechListenOptions(
+          partialResults: true,
+          cancelOnError: true,
+        ),
       );
 
       // Set timeout timer

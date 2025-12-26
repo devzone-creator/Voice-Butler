@@ -21,6 +21,7 @@
         "provider",
         "shared_preferences",
         "speech_to_text",
+        "timezone",
         "uuid",
         "workmanager"
       ],
@@ -185,6 +186,13 @@
         "flutter_web_plugins",
         "logging",
         "meta"
+      ]
+    },
+    {
+      "name": "timezone",
+      "version": "0.9.4",
+      "dependencies": [
+        "path"
       ]
     },
     {
@@ -781,13 +789,6 @@
       "version": "0.0.0",
       "dependencies": [
         "flutter"
-      ]
-    },
-    {
-      "name": "timezone",
-      "version": "0.9.4",
-      "dependencies": [
-        "path"
       ]
     },
     {

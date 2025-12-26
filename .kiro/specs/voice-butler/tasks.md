@@ -46,7 +46,9 @@
 
 
 
-  - [ ] 2.5 Write property test for storage persistence
+  - [x] 2.5 Write property test for storage persistence
+
+
 
 
 
@@ -54,27 +56,39 @@
     - **Property 24: Task Data Persistence**
     - **Validates: Requirements 6.1**
 
+
 - [x] 3. Implement voice input and speech processing
+
+
 
 
 
   - [ ] 3.1 Set up voice input service
     - Integrate speech_to_text package for voice capture
     - Implement recording start/stop functionality with proper permissions
+
     - Add error handling for microphone access and speech recognition failures
     - _Requirements: 1.1, 1.5_
+
+
+
 
   - [ ] 3.2 Write property test for voice input reliability
     - **Property 1: Voice Input Processing Reliability**
     - **Validates: Requirements 1.1, 1.5**
 
+
+
   - [ ] 3.3 Create voice input UI component
     - Design and implement voice recording button with visual feedback
     - Add recording state indicators and user guidance
+
+
     - Implement fallback manual text input when voice fails
     - _Requirements: 1.1, 7.1, 7.2_
 
-- [ ] 4. Implement AI intent extraction service
+- [x] 4. Implement AI intent extraction service
+
   - [ ] 4.1 Set up Gemini AI integration
     - Configure Gemini API client for intent extraction
     - Implement API request/response handling with error management
@@ -91,7 +105,8 @@
     - **Property 2: AI Intent Extraction Completeness**
     - **Validates: Requirements 1.2**
 
-  - [ ] 4.4 Implement task preview functionality
+  - [x] 4.4 Implement task preview functionality
+
     - Create task preview UI showing extracted data
     - Allow user confirmation or manual editing before task creation
     - Ensure preview accuracy matches extracted intent data

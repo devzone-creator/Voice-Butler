@@ -30,6 +30,7 @@ dependencies:
   # Background Jobs & Notifications
   workmanager: ^0.5.2
   flutter_local_notifications: ^16.3.0
+  timezone: ^0.9.4
   
   # UI & Navigation
   go_router: ^12.1.3
