@@ -96,6 +96,22 @@ class TaskProvider extends ChangeNotifier {
 
     try {
       await _repository.completeTask(taskId);
+      
+      // Trigger automation rules for completed task
+      final completedTask = _repository.getTaskById(taskId);
+      if (completedTask != null) {
+        // Import automation provider dynamically to avoid circular dependency
+        try {
+          // This would be handled by the automation system
+          // AutomationProvider.instance.applyAutomationRules(completedTask);
+        } catch (e) {
+          // Automation failure shouldn't prevent task completion
+          if (kDebugMode) {
+            print('Automation trigger failed: $e');
+          }
+        }
+      }
+      
       await loadTasks(); // Refresh the lists
       return true;
     } catch (e) {

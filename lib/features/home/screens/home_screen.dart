@@ -35,77 +35,89 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Voice Butler Logo/Icon placeholder
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(60),
-                ),
-                child: Icon(
-                  Icons.mic,
-                  size: 60,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height - 
+                    MediaQuery.of(context).padding.top - 
+                    kToolbarHeight - 32, // Account for padding and app bar
               ),
-              const SizedBox(height: 32),
-              
-              Text(
-                'Welcome to Voice Butler',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              
-              Text(
-                'Speak your tasks, let the Butler handle the rest',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
-              
-              // Voice Input Widget
-              VoiceInputWidget(
-                onTextSubmitted: (text) => _handleVoiceInput(context, text),
-                hintText: 'Say something like "Create a task to review the code"',
-                labelText: 'Voice Input',
-                showManualInput: true,
-                autoFocusManualInput: false,
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Quick Access Buttons
-              Row(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push('/tasks'),
-                      icon: const Icon(Icons.list),
-                      label: const Text('Tasks'),
+                  // Voice Butler Logo/Icon placeholder
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(60),
+                    ),
+                    child: Icon(
+                      Icons.mic,
+                      size: 60,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push('/activity-feed'),
-                      icon: const Icon(Icons.history),
-                      label: const Text('Activity'),
+                  const SizedBox(height: 32),
+                  
+                  Text(
+                    'Welcome to Voice Butler',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 16),
+                  
+                  Text(
+                    'Speak your tasks, let the Butler handle the rest',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 48),
+                  
+                  // Voice Input Widget
+                  VoiceInputWidget(
+                    onTextSubmitted: (text) => _handleVoiceInput(context, text),
+                    hintText: 'Say something like "Create a task to review the code"',
+                    labelText: 'Voice Input',
+                    showManualInput: true,
+                    autoFocusManualInput: false,
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Quick Access Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => context.push('/tasks'),
+                          icon: const Icon(Icons.list),
+                          label: const Text('Tasks'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => context.push('/activity-feed'),
+                          icon: const Icon(Icons.history),
+                          label: const Text('Activity'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // Add some bottom padding for the floating action button
+                  const SizedBox(height: 80),
                 ],
               ),
-            ],
+            ),
           ),
         ),
         floatingActionButton: FloatingActionButton(

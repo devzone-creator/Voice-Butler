@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../../../core/services/storage_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/models/automation_rule.dart';
 import '../../../core/models/activity_log.dart';
 import '../../../core/models/task.dart';
@@ -175,28 +176,94 @@ class AutomationProvider extends ChangeNotifier {
   Future<void> _executeAction(RuleAction action, Task task, AutomationRule rule) async {
     switch (action.type) {
       case RuleActionType.sendNotification:
-        // Would integrate with notification service
-        if (kDebugMode) {
-          print('Notification: ${action.parameters['title']} - ${action.parameters['message']}');
+        try {
+          await NotificationService.instance.showTaskReminder(
+            id: task.id.hashCode,
+            title: action.parameters['title'] ?? 'Task Reminder',
+            body: action.parameters['message'] ?? 'You have a task reminder',
+          );
+          
+          // Log notification sent
+          final notificationLog = ActivityLog.create(
+            taskId: task.id,
+            type: ActivityType.notificationSent,
+            description: 'Notification sent: ${action.parameters['title']}',
+            metadata: {
+              'ruleId': rule.id,
+              'ruleName': rule.name,
+              'notificationTitle': action.parameters['title'],
+              'notificationMessage': action.parameters['message'],
+            },
+          );
+          await _storageService.storeActivityLog(notificationLog);
+          
+          if (kDebugMode) {
+            print('Notification sent: ${action.parameters['title']} - ${action.parameters['message']}');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('Failed to send notification: $e');
+          }
+          
+          // Log notification failure
+          final errorLog = ActivityLog.errorOccurred(
+            errorMessage: 'Failed to send notification: $e',
+            additionalMetadata: {
+              'ruleId': rule.id,
+              'taskId': task.id,
+            },
+          );
+          await _storageService.storeActivityLog(errorLog);
         }
         break;
+        
       case RuleActionType.sendReminder:
-        if (kDebugMode) {
-          print('Reminder: ${action.parameters['message']}');
+        try {
+          await NotificationService.instance.showTaskReminder(
+            id: task.id.hashCode + 1000, // Different ID for reminders
+            title: 'Task Reminder',
+            body: action.parameters['message'] ?? 'Don\'t forget about your task: ${task.title}',
+          );
+          
+          // Log reminder sent
+          final reminderLog = ActivityLog.create(
+            taskId: task.id,
+            type: ActivityType.reminderSent,
+            description: 'Reminder sent for task: ${task.title}',
+            metadata: {
+              'ruleId': rule.id,
+              'ruleName': rule.name,
+              'reminderMessage': action.parameters['message'],
+            },
+          );
+          await _storageService.storeActivityLog(reminderLog);
+          
+          if (kDebugMode) {
+            print('Reminder sent: ${action.parameters['message']}');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('Failed to send reminder: $e');
+          }
+          
+          // Log reminder failure
+          final errorLog = ActivityLog.errorOccurred(
+            errorMessage: 'Failed to send reminder: $e',
+            additionalMetadata: {
+              'ruleId': rule.id,
+              'taskId': task.id,
+            },
+          );
+          await _storageService.storeActivityLog(errorLog);
         }
         break;
+        
       default:
         // Handle any other action types
+        if (kDebugMode) {
+          print('Unknown action type: ${action.type}');
+        }
         break;
-      // case RuleActionType.setPriority:
-      //   // Would update task priority
-      //   break;
-      // case RuleActionType.addTag:
-      //   // Would add tags to task
-      //   break;
-      // case RuleActionType.setDeadline:
-      //   // Would set task deadline
-      //   break;
     }
   }
 }

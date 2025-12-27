@@ -152,7 +152,9 @@
 
 
 
-  - [ ] 5.3 Create task list display component
+  - [x] 5.3 Create task list display component
+
+
     - Implement task list UI showing pending and completed tasks
     - Add priority indicators and visual status differentiation
     - Include task completion and deletion actions
@@ -164,6 +166,8 @@
 
     - **Property 5: Task List Display Completeness**
     - **Validates: Requirements 2.1**
+
+
 
 
   - [ ] 5.5 Implement task completion functionality
@@ -178,6 +182,8 @@
   - [ ] 5.6 Write property test for task completion state transition
     - **Property 6: Task Completion State Transition**
     - **Validates: Requirements 2.2**
+
+
 
 
 - [ ] 6. Implement soft delete and recovery system
@@ -205,6 +211,7 @@
 
   - [x] 6.4 Write property test for Recently Deleted display
 
+
     - **Property 8: Recently Deleted Display**
     - **Validates: Requirements 2.4**
 
@@ -221,17 +228,22 @@
 
     - **Validates: Requirements 2.5**
 
+
+
 - [x] 7. Checkpoint - Ensure all core functionality tests pass
 
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Implement basic automation system
+- [-] 8. Implement basic automation system
+
   - [ ] 8.1 Create automation rule engine
     - Implement basic automation rule processing
 
     - Add predefined rules for deadline reminders and priority-based actions
     - Create rule execution scheduler for background processing
     - _Requirements: 3.1, 3.2, 3.5_
+
+
 
   - [ ] 8.2 Write property test for deadline reminder scheduling
     - **Property 10: Deadline Reminder Scheduling**
@@ -240,6 +252,8 @@
   - [ ] 8.3 Write property test for priority-based automation
     - **Property 11: Priority-Based Automation**
     - **Validates: Requirements 3.2**
+
+
 
   - [ ] 8.4 Implement activity logging system
     - Create activity feed for tracking automation actions

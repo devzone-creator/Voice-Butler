@@ -24,7 +24,7 @@ android {
         applicationId = "com.voicebutler.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23  // Required for speech recognition and notifications
+        minSdk = flutter.minSdkVersion  // Required for speech recognition and notifications
         targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
