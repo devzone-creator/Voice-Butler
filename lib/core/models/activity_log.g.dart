@@ -6,6 +6,64 @@ part of 'activity_log.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
+class ActivityLogAdapter extends TypeAdapter<ActivityLog> {
+  @override
+  final int typeId = 10;
+
+  @override
+  ActivityLog read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return ActivityLog(
+      id: fields[0] as String,
+      taskId: fields[1] as String?,
+      ruleId: fields[2] as String?,
+      type: fields[3] as ActivityType,
+      description: fields[4] as String,
+      metadata: (fields[5] as Map).cast<String, dynamic>(),
+      timestamp: fields[6] as DateTime,
+      userId: fields[7] as String?,
+      isSystemGenerated: fields[8] as bool,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, ActivityLog obj) {
+    writer
+      ..writeByte(9)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.taskId)
+      ..writeByte(2)
+      ..write(obj.ruleId)
+      ..writeByte(3)
+      ..write(obj.type)
+      ..writeByte(4)
+      ..write(obj.description)
+      ..writeByte(5)
+      ..write(obj.metadata)
+      ..writeByte(6)
+      ..write(obj.timestamp)
+      ..writeByte(7)
+      ..write(obj.userId)
+      ..writeByte(8)
+      ..write(obj.isSystemGenerated);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActivityLogAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class ActivityTypeAdapter extends TypeAdapter<ActivityType> {
   @override
   final int typeId = 9;
@@ -43,6 +101,14 @@ class ActivityTypeAdapter extends TypeAdapter<ActivityType> {
         return ActivityType.cleanupPerformed;
       case 14:
         return ActivityType.errorOccurred;
+      case 15:
+        return ActivityType.workflowActivated;
+      case 16:
+        return ActivityType.workflowDeactivated;
+      case 17:
+        return ActivityType.workflowExecuted;
+      case 18:
+        return ActivityType.workflowCreated;
       default:
         return ActivityType.automationApplied;
     }
@@ -96,6 +162,18 @@ class ActivityTypeAdapter extends TypeAdapter<ActivityType> {
       case ActivityType.errorOccurred:
         writer.writeByte(14);
         break;
+      case ActivityType.workflowActivated:
+        writer.writeByte(15);
+        break;
+      case ActivityType.workflowDeactivated:
+        writer.writeByte(16);
+        break;
+      case ActivityType.workflowExecuted:
+        writer.writeByte(17);
+        break;
+      case ActivityType.workflowCreated:
+        writer.writeByte(18);
+        break;
     }
   }
 
@@ -106,64 +184,6 @@ class ActivityTypeAdapter extends TypeAdapter<ActivityType> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ActivityTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class ActivityLogAdapter extends TypeAdapter<ActivityLog> {
-  @override
-  final int typeId = 10;
-
-  @override
-  ActivityLog read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return ActivityLog(
-      id: fields[0] as String,
-      taskId: fields[1] as String?,
-      ruleId: fields[2] as String?,
-      type: fields[3] as ActivityType,
-      description: fields[4] as String,
-      metadata: Map<String, dynamic>.from(fields[5] as Map),
-      timestamp: fields[6] as DateTime,
-      userId: fields[7] as String?,
-      isSystemGenerated: fields[8] as bool,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, ActivityLog obj) {
-    writer
-      ..writeByte(9)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.taskId)
-      ..writeByte(2)
-      ..write(obj.ruleId)
-      ..writeByte(3)
-      ..write(obj.type)
-      ..writeByte(4)
-      ..write(obj.description)
-      ..writeByte(5)
-      ..write(obj.metadata)
-      ..writeByte(6)
-      ..write(obj.timestamp)
-      ..writeByte(7)
-      ..write(obj.userId)
-      ..writeByte(8)
-      ..write(obj.isSystemGenerated);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ActivityLogAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

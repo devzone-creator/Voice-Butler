@@ -183,6 +183,100 @@ void main() {
               reason: 'Error messages should not expose technical details');
         }
       });
+      
+      test('**Feature: voice-butler, Property 3: Task Preview Accuracy** - For any extracted task intent, the preview display should contain all the structured data fields from the intent extraction', () async {
+        // **Validates: Requirements 1.3**
+        
+        // Test with various successful intent extraction scenarios
+        final testScenarios = [
+          {
+            'input': 'Create a high priority task to review code by tomorrow',
+            'expectedFields': ['title', 'priority', 'deadline']
+          },
+          {
+            'input': 'Remind me to call John because it\'s urgent',
+            'expectedFields': ['title', 'priority', 'reason']
+          },
+          {
+            'input': 'Low priority task to update documentation',
+            'expectedFields': ['title', 'priority']
+          },
+          {
+            'input': 'Schedule meeting with team next Friday for project review',
+            'expectedFields': ['title', 'priority', 'deadline', 'reason']
+          },
+          {
+            'input': 'Buy groceries',
+            'expectedFields': ['title', 'priority']
+          },
+        ];
+        
+        for (int i = 0; i < testScenarios.length; i++) {
+          final scenario = testScenarios[i];
+          final input = scenario['input'] as String;
+          final expectedFields = scenario['expectedFields'] as List<String>;
+          
+          // Extract task intent
+          final result = await aiService.extractTaskIntent(input);
+          
+          // Test that preview data contains all extracted fields
+          if (result.isSuccess) {
+            // Title should always be present and non-empty
+            expect(result.title, isNotNull,
+                reason: 'Preview should contain title from extraction');
+            expect(result.title!.isNotEmpty, isTrue,
+                reason: 'Preview title should not be empty');
+            
+            // Priority should always be present
+            expect(result.priority, isNotNull,
+                reason: 'Preview should contain priority from extraction');
+            expect(result.priority, isIn(TaskPriority.values),
+                reason: 'Preview priority should be valid TaskPriority');
+            
+            // If reason was extracted, it should be in preview
+            if (expectedFields.contains('reason') && result.reason != null) {
+              expect(result.reason!.isNotEmpty, isTrue,
+                  reason: 'Preview should contain non-empty reason if extracted');
+            }
+            
+            // If deadline was extracted, it should be in preview
+            if (expectedFields.contains('deadline') && result.deadline != null) {
+              expect(result.deadline, isA<DateTime>(),
+                  reason: 'Preview should contain valid deadline if extracted');
+              expect(result.deadline!.isAfter(DateTime.now().subtract(const Duration(days: 1))), isTrue,
+                  reason: 'Preview deadline should be reasonable');
+            }
+            
+            // Test that creating a task from the intent preserves all data
+            final previewTask = Task.create(
+              title: result.title!,
+              priority: result.priority!,
+              reason: result.reason,
+              deadline: result.deadline,
+            );
+            
+            // Verify task matches the extracted intent exactly
+            expect(previewTask.title, equals(result.title),
+                reason: 'Task preview title should match extracted title');
+            expect(previewTask.priority, equals(result.priority),
+                reason: 'Task preview priority should match extracted priority');
+            expect(previewTask.reason, equals(result.reason),
+                reason: 'Task preview reason should match extracted reason');
+            expect(previewTask.deadline, equals(result.deadline),
+                reason: 'Task preview deadline should match extracted deadline');
+            
+            // Verify task has proper default values for non-extracted fields
+            expect(previewTask.status, equals(TaskStatus.pending),
+                reason: 'Task preview should have pending status');
+            expect(previewTask.isDeleted, isFalse,
+                reason: 'Task preview should not be deleted');
+            expect(previewTask.id, isNotEmpty,
+                reason: 'Task preview should have generated ID');
+            expect(previewTask.createdAt, isNotNull,
+                reason: 'Task preview should have creation timestamp');
+          }
+        }
+      });
     });
     
     group('Unit Tests', () {

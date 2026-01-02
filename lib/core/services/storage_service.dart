@@ -4,6 +4,7 @@ import '../app_config.dart';
 import '../models/task.dart';
 import '../models/automation_rule.dart';
 import '../models/activity_log.dart';
+import '../models/preset_workflow.dart';
 
 class StorageService {
   static final StorageService _instance = StorageService._internal();
@@ -143,6 +144,25 @@ class StorageService {
     
     // Also run cleanup on startup
     _performAutomaticCleanup();
+  }
+
+  /// Public method to perform cleanup and return count
+  Future<int> performTaskAutoCleanup() async {
+    final tasksToDelete = <String>[];
+    
+    // Find tasks that should be cleaned up
+    for (final task in getAllTasks()) {
+      if (task.shouldAutoCleanup()) {
+        tasksToDelete.add(task.id);
+      }
+    }
+    
+    // Permanently delete old tasks
+    for (final taskId in tasksToDelete) {
+      await permanentlyDeleteTask(taskId);
+    }
+    
+    return tasksToDelete.length;
   }
 
   /// Performs automatic cleanup of old soft-deleted tasks
@@ -603,3 +623,105 @@ class StorageService {
     };
   }
 }
+  /// Public method to perform cleanup and return count
+  Future<int> performTaskAutoCleanup() async {
+    final tasksToDelete = <String>[];
+    
+    // Find tasks that should be cleaned up
+    for (final task in getAllTasks()) {
+      if (task.shouldAutoCleanup()) {
+        tasksToDelete.add(task.id);
+      }
+    }
+    
+    // Permanently delete old tasks
+    for (final taskId in tasksToDelete) {
+      await permanentlyDeleteTask(taskId);
+    }
+    
+    return tasksToDelete.length;
+  }
+
+  /// Get all preset workflows
+  List<PresetWorkflow> getAllPresetWorkflows() {
+    try {
+      if (!_workflowCacheValid) {
+        _workflowCache.clear();
+        for (final key in _presetWorkflowsBox.keys) {
+          final workflow = _presetWorkflowsBox.get(key) as PresetWorkflow?;
+          if (workflow != null) {
+            _workflowCache[workflow.id] = workflow;
+          }
+        }
+        _workflowCacheValid = true;
+      }
+      return _workflowCache.values.toList();
+    } catch (e) {
+      print('Error getting preset workflows: $e');
+      return [];
+    }
+  }
+
+  /// Store preset workflow
+  Future<void> storePresetWorkflow(PresetWorkflow workflow) async {
+    try {
+      await _presetWorkflowsBox.put(workflow.id, workflow);
+      _workflowCache[workflow.id] = workflow;
+    } catch (e) {
+      throw Exception('Failed to store preset workflow: $e');
+    }
+  }
+
+  /// Delete preset workflow
+  Future<void> deletePresetWorkflow(String workflowId) async {
+    try {
+      await _presetWorkflowsBox.delete(workflowId);
+      _workflowCache.remove(workflowId);
+    } catch (e) {
+      throw Exception('Failed to delete preset workflow: $e');
+    }
+  }
+
+  /// Perform activity log maintenance
+  Future<Map<String, dynamic>> performActivityLogMaintenance({
+    int? maxLogsToKeep,
+    bool notifyUser = true,
+  }) async {
+    try {
+      final allLogs = getAllActivityLogs();
+      final maxLogs = maxLogsToKeep ?? 1000;
+      
+      if (allLogs.length <= maxLogs) {
+        return {
+          'logsRemoved': 0,
+          'totalLogs': allLogs.length,
+          'message': 'No maintenance needed',
+        };
+      }
+      
+      // Sort by timestamp (newest first)
+      allLogs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      
+      // Keep only the most recent logs
+      final logsToKeep = allLogs.take(maxLogs).toList();
+      final logsToRemove = allLogs.skip(maxLogs).toList();
+      
+      // Remove old logs
+      for (final log in logsToRemove) {
+        await _activityLogsBox.delete(log.id);
+        _logCache.remove(log.id);
+      }
+      
+      return {
+        'logsRemoved': logsToRemove.length,
+        'totalLogs': logsToKeep.length,
+        'message': 'Maintenance completed successfully',
+      };
+    } catch (e) {
+      return {
+        'logsRemoved': 0,
+        'totalLogs': 0,
+        'message': 'Maintenance failed: $e',
+      };
+    }
+  }

@@ -6,6 +6,141 @@ part of 'automation_rule.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
+class RuleConditionAdapter extends TypeAdapter<RuleCondition> {
+  @override
+  final int typeId = 6;
+
+  @override
+  RuleCondition read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return RuleCondition(
+      type: fields[0] as RuleConditionType,
+      value: fields[1] as String,
+      operator: fields[2] as String?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, RuleCondition obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.type)
+      ..writeByte(1)
+      ..write(obj.value)
+      ..writeByte(2)
+      ..write(obj.operator);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RuleConditionAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class RuleActionAdapter extends TypeAdapter<RuleAction> {
+  @override
+  final int typeId = 7;
+
+  @override
+  RuleAction read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return RuleAction(
+      type: fields[0] as RuleActionType,
+      parameters: (fields[1] as Map).cast<String, String>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, RuleAction obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.type)
+      ..writeByte(1)
+      ..write(obj.parameters);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RuleActionAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class AutomationRuleAdapter extends TypeAdapter<AutomationRule> {
+  @override
+  final int typeId = 8;
+
+  @override
+  AutomationRule read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return AutomationRule(
+      id: fields[0] as String,
+      name: fields[1] as String,
+      trigger: fields[2] as RuleTrigger,
+      conditions: (fields[3] as List).cast<RuleCondition>(),
+      actions: (fields[4] as List).cast<RuleAction>(),
+      isActive: fields[5] as bool,
+      createdAt: fields[6] as DateTime,
+      description: fields[7] as String?,
+      isPreset: fields[8] as bool,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, AutomationRule obj) {
+    writer
+      ..writeByte(9)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.name)
+      ..writeByte(2)
+      ..write(obj.trigger)
+      ..writeByte(3)
+      ..write(obj.conditions)
+      ..writeByte(4)
+      ..write(obj.actions)
+      ..writeByte(5)
+      ..write(obj.isActive)
+      ..writeByte(6)
+      ..write(obj.createdAt)
+      ..writeByte(7)
+      ..write(obj.description)
+      ..writeByte(8)
+      ..write(obj.isPreset);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AutomationRuleAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class RuleTriggerAdapter extends TypeAdapter<RuleTrigger> {
   @override
   final int typeId = 3;
@@ -209,141 +344,6 @@ class RuleActionTypeAdapter extends TypeAdapter<RuleActionType> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RuleActionTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class RuleConditionAdapter extends TypeAdapter<RuleCondition> {
-  @override
-  final int typeId = 6;
-
-  @override
-  RuleCondition read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return RuleCondition(
-      type: fields[0] as RuleConditionType,
-      value: fields[1] as String,
-      operator: fields[2] as String?,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, RuleCondition obj) {
-    writer
-      ..writeByte(3)
-      ..writeByte(0)
-      ..write(obj.type)
-      ..writeByte(1)
-      ..write(obj.value)
-      ..writeByte(2)
-      ..write(obj.operator);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RuleConditionAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class RuleActionAdapter extends TypeAdapter<RuleAction> {
-  @override
-  final int typeId = 7;
-
-  @override
-  RuleAction read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return RuleAction(
-      type: fields[0] as RuleActionType,
-      parameters: Map<String, String>.from(fields[1] as Map),
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, RuleAction obj) {
-    writer
-      ..writeByte(2)
-      ..writeByte(0)
-      ..write(obj.type)
-      ..writeByte(1)
-      ..write(obj.parameters);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RuleActionAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class AutomationRuleAdapter extends TypeAdapter<AutomationRule> {
-  @override
-  final int typeId = 8;
-
-  @override
-  AutomationRule read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return AutomationRule(
-      id: fields[0] as String,
-      name: fields[1] as String,
-      trigger: fields[2] as RuleTrigger,
-      conditions: (fields[3] as List).cast<RuleCondition>(),
-      actions: (fields[4] as List).cast<RuleAction>(),
-      isActive: fields[5] as bool,
-      createdAt: fields[6] as DateTime,
-      description: fields[7] as String?,
-      isPreset: fields[8] as bool,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, AutomationRule obj) {
-    writer
-      ..writeByte(9)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.name)
-      ..writeByte(2)
-      ..write(obj.trigger)
-      ..writeByte(3)
-      ..write(obj.conditions)
-      ..writeByte(4)
-      ..write(obj.actions)
-      ..writeByte(5)
-      ..write(obj.isActive)
-      ..writeByte(6)
-      ..write(obj.createdAt)
-      ..writeByte(7)
-      ..write(obj.description)
-      ..writeByte(8)
-      ..write(obj.isPreset);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AutomationRuleAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

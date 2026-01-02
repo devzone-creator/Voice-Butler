@@ -1,13 +1,17 @@
 {
-    "name": "voice_butler",
-    "short_name": "voice_butler",
+    "name": "Voice Butler",
+    "short_name": "Voice Butler",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "description": "An intelligent voice-activated task management application for Chrome",
+    "orientation": "any",
     "prefer_related_applications": false,
+    "permissions": [
+        "notifications",
+        "microphone"
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",

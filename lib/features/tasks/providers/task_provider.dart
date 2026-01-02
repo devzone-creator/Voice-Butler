@@ -1,10 +1,14 @@
 import 'package:flutter/foundation.dart';
 import '../../../core/models/task.dart';
+import '../../../core/models/activity_log.dart';
+import '../../../core/services/storage_service.dart';
 import '../repositories/task_repository.dart';
+import '../../automation/providers/automation_provider.dart';
 
 /// Provider for managing task state and operations
 class TaskProvider extends ChangeNotifier {
   final TaskRepository _repository = TaskRepository.instance;
+  AutomationProvider? _automationProvider;
 
   List<Task> _tasks = [];
   List<Task> _pendingTasks = [];
@@ -12,6 +16,16 @@ class TaskProvider extends ChangeNotifier {
   List<Task> _softDeletedTasks = [];
   bool _isLoading = false;
   String? _error;
+
+  TaskProvider() {
+    // Load tasks when provider is created
+    initialize();
+  }
+
+  /// Sets the automation provider for triggering automation rules
+  void setAutomationProvider(AutomationProvider automationProvider) {
+    _automationProvider = automationProvider;
+  }
 
   // Getters
   List<Task> get tasks => _tasks;
@@ -63,6 +77,12 @@ class TaskProvider extends ChangeNotifier {
 
       final createdTask = await _repository.createTask(task);
       await loadTasks(); // Refresh the lists
+      
+      // Trigger automation rules for task creation
+      if (_automationProvider != null) {
+        await _automationProvider!.onTaskCreated(createdTask);
+      }
+      
       return createdTask;
     } catch (e) {
       _setError('Failed to create task: $e');
@@ -95,24 +115,24 @@ class TaskProvider extends ChangeNotifier {
     _clearError();
 
     try {
+      final task = _repository.getTaskById(taskId);
+      if (task == null) {
+        _setError('Task not found');
+        return false;
+      }
+
       await _repository.completeTask(taskId);
+      await loadTasks(); // Refresh the lists
       
-      // Trigger automation rules for completed task
-      final completedTask = _repository.getTaskById(taskId);
-      if (completedTask != null) {
-        // Import automation provider dynamically to avoid circular dependency
-        try {
-          // This would be handled by the automation system
-          // AutomationProvider.instance.applyAutomationRules(completedTask);
-        } catch (e) {
-          // Automation failure shouldn't prevent task completion
-          if (kDebugMode) {
-            print('Automation trigger failed: $e');
-          }
-        }
+      // Log the completion activity
+      await _logTaskCompletion('Task completed: "${task.title}"', task.id);
+      
+      // Trigger automation rules for task completion
+      if (_automationProvider != null) {
+        final completedTask = task.markCompleted();
+        await _automationProvider!.onTaskCompleted(completedTask);
       }
       
-      await loadTasks(); // Refresh the lists
       return true;
     } catch (e) {
       _setError('Failed to complete task: $e');
@@ -128,8 +148,24 @@ class TaskProvider extends ChangeNotifier {
     _clearError();
 
     try {
+      final task = _repository.getTaskById(taskId);
+      if (task == null) {
+        _setError('Task not found');
+        return false;
+      }
+
       await _repository.softDeleteTask(taskId);
       await loadTasks(); // Refresh the lists
+      
+      // Log the deletion activity
+      await _logTaskDeletion('Task moved to Recently Deleted: "${task.title}"', task.id);
+      
+      // Trigger automation rules for task deletion
+      if (_automationProvider != null) {
+        final deletedTask = task.markSoftDeleted();
+        await _automationProvider!.onTaskDeleted(deletedTask);
+      }
+      
       return true;
     } catch (e) {
       _setError('Failed to delete task: $e');
@@ -251,5 +287,37 @@ class TaskProvider extends ChangeNotifier {
   void _clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  /// Logs task completion activity
+  Future<void> _logTaskCompletion(String message, String taskId) async {
+    try {
+      final log = ActivityLog.create(
+        taskId: taskId,
+        type: ActivityType.taskCompleted,
+        description: message,
+      );
+      await StorageService.instance.storeActivityLog(log);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to log task completion: $e');
+      }
+    }
+  }
+
+  /// Logs task deletion activity
+  Future<void> _logTaskDeletion(String message, String taskId) async {
+    try {
+      final log = ActivityLog.create(
+        taskId: taskId,
+        type: ActivityType.taskDeleted,
+        description: message,
+      );
+      await StorageService.instance.storeActivityLog(log);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to log task deletion: $e');
+      }
+    }
   }
 }

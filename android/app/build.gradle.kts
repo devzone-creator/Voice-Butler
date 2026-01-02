@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.voicebutler.app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // ndkVersion = flutter.ndkVersion  // Commented out to avoid NDK requirement
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -28,6 +28,16 @@ android {
         targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Disable native code compilation
+        ndk {
+            abiFilters.clear()
+        }
+    }
+    
+    // Disable native build
+    externalNativeBuild {
+        // Remove any native build configurations
     }
 
     buildTypes {

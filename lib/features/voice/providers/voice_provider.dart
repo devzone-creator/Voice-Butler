@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import '../../../core/services/voice_service.dart';
 
 /// Provider for managing voice input state and operations
@@ -92,7 +91,7 @@ class VoiceProvider extends ChangeNotifier {
   }
 
   /// Gets available locales for speech recognition
-  Future<List<LocaleName>> getAvailableLocales() async {
+  Future<List<String>> getAvailableLocales() async {
     return await _voiceService.getAvailableLocales();
   }
 

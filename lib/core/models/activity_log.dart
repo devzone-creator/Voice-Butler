@@ -36,6 +36,14 @@ enum ActivityType {
   cleanupPerformed,
   @HiveField(14)
   errorOccurred,
+  @HiveField(15)
+  workflowActivated,
+  @HiveField(16)
+  workflowDeactivated,
+  @HiveField(17)
+  workflowExecuted,
+  @HiveField(18)
+  workflowCreated,
 }
 
 /// Represents a log entry for system activities and automation actions
@@ -314,6 +322,14 @@ class ActivityLog extends Equatable {
         return 'Cleanup Performed';
       case ActivityType.errorOccurred:
         return 'Error Occurred';
+      case ActivityType.workflowActivated:
+        return 'Workflow Activated';
+      case ActivityType.workflowDeactivated:
+        return 'Workflow Deactivated';
+      case ActivityType.workflowExecuted:
+        return 'Workflow Executed';
+      case ActivityType.workflowCreated:
+        return 'Workflow Created';
     }
   }
 
@@ -384,6 +400,14 @@ class ActivityLog extends Equatable {
         return 'cleaning_services';
       case ActivityType.errorOccurred:
         return 'error';
+      case ActivityType.workflowActivated:
+        return 'playlist_play';
+      case ActivityType.workflowDeactivated:
+        return 'playlist_remove';
+      case ActivityType.workflowExecuted:
+        return 'smart_toy';
+      case ActivityType.workflowCreated:
+        return 'create_new_folder';
     }
   }
 

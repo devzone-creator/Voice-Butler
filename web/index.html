@@ -29,8 +29,15 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>voice_butler</title>
+  <title>Voice Butler</title>
   <link rel="manifest" href="manifest.json">
+  
+  <!-- Chrome-specific meta tags for PWA -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <!-- Web Speech API requires HTTPS (or localhost) -->
+  <script src="speech_recognition_bridge.js"></script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

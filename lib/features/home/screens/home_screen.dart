@@ -4,8 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../voice/providers/voice_provider.dart';
 import '../../voice/widgets/widgets.dart';
 import '../../ai/providers/ai_provider.dart';
-import '../../../core/models/task.dart';
-import '../../../core/services/storage_service.dart';
+import '../../tasks/providers/task_provider.dart';
 import '../../../core/services/ai_service.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -24,99 +23,71 @@ class HomeScreen extends StatelessWidget {
           centerTitle: true,
           actions: [
             IconButton(
+              icon: const Icon(Icons.list),
+              onPressed: () => context.push('/tasks'),
+              tooltip: 'Tasks',
+            ),
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () => context.push('/activity-feed'),
+              tooltip: 'Activity Feed',
+            ),
+            IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: () {
-                // TODO: Navigate to settings when implemented
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Settings coming soon!')),
-                );
-              },
+              onPressed: () => context.push('/settings'),
               tooltip: 'Settings',
             ),
           ],
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
+        body: Center(
+          child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - 
-                    MediaQuery.of(context).padding.top - 
-                    kToolbarHeight - 32, // Account for padding and app bar
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Voice Butler Logo/Icon placeholder
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(60),
-                    ),
-                    child: Icon(
-                      Icons.mic,
-                      size: 60,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Voice Butler Logo/Icon placeholder
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(60),
                   ),
-                  const SizedBox(height: 32),
-                  
-                  Text(
-                    'Welcome to Voice Butler',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
+                  child: Icon(
+                    Icons.mic,
+                    size: 60,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
-                  const SizedBox(height: 16),
-                  
-                  Text(
-                    'Speak your tasks, let the Butler handle the rest',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                
+                Text(
+                  'Welcome to Voice Butler',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 48),
-                  
-                  // Voice Input Widget
-                  VoiceInputWidget(
-                    onTextSubmitted: (text) => _handleVoiceInput(context, text),
-                    hintText: 'Say something like "Create a task to review the code"',
-                    labelText: 'Voice Input',
-                    showManualInput: true,
-                    autoFocusManualInput: false,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                
+                Text(
+                  'Speak your tasks, let the Butler handle the rest',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Quick Access Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => context.push('/tasks'),
-                          icon: const Icon(Icons.list),
-                          label: const Text('Tasks'),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => context.push('/activity-feed'),
-                          icon: const Icon(Icons.history),
-                          label: const Text('Activity'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  // Add some bottom padding for the floating action button
-                  const SizedBox(height: 80),
-                ],
-              ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 48),
+                
+                // Voice Input Widget
+                VoiceInputWidget(
+                  onTextSubmitted: (text) => _handleVoiceInput(context, text),
+                  hintText: 'Say something like "Create a task to review the code"',
+                  labelText: 'Voice Input',
+                  showManualInput: true,
+                  autoFocusManualInput: false,
+                ),
+              ],
             ),
           ),
         ),
@@ -151,11 +122,19 @@ class HomeScreen extends StatelessWidget {
     try {
       // Extract task intent using AI
       TaskIntentResult result;
+      bool usedFallback = false;
       
       if (aiProvider.hasApiKey && aiProvider.isInitialized) {
-        result = await aiProvider.extractTaskIntent(text);
+        try {
+          result = await aiProvider.extractTaskIntent(text);
+        } catch (e) {
+          // If AI fails, use fallback
+          usedFallback = true;
+          result = aiProvider.fallbackTaskExtraction(text);
+        }
       } else {
         // Use fallback parsing if AI is not available
+        usedFallback = true;
         result = aiProvider.fallbackTaskExtraction(text);
       }
 
@@ -165,18 +144,36 @@ class HomeScreen extends StatelessWidget {
       }
 
       if (result.isSuccess) {
-        // Show task preview and confirmation
+        // Show task preview and confirmation (with note if fallback was used)
         _showTaskPreview(context, result, text);
       } else {
-        // Show error
-        _showError(context, result.error ?? 'Failed to process request');
+        // Even if extraction failed, try to create a basic task from the text
+        // This ensures users can still create tasks even if AI fails
+        final fallbackResult = aiProvider.fallbackTaskExtraction(text);
+        if (fallbackResult.isSuccess) {
+          _showTaskPreview(context, fallbackResult, text);
+        } else {
+          // Show error only if fallback also fails
+          _showError(context, result.error ?? 'Failed to process request. Please try a different format.');
+        }
       }
     } catch (e) {
       // Close processing dialog
       if (context.mounted) {
         Navigator.of(context).pop();
       }
-      _showError(context, 'Unexpected error: $e');
+      
+      // Try fallback even on unexpected errors
+      try {
+        final fallbackResult = aiProvider.fallbackTaskExtraction(text);
+        if (fallbackResult.isSuccess) {
+          _showTaskPreview(context, fallbackResult, text);
+        } else {
+          _showError(context, 'Unexpected error: $e');
+        }
+      } catch (fallbackError) {
+        _showError(context, 'Unexpected error: $e. Fallback also failed: $fallbackError');
+      }
     }
   }
 
@@ -219,16 +216,16 @@ class HomeScreen extends StatelessWidget {
 
   void _createTask(BuildContext context, TaskIntentResult result) async {
     try {
-      final task = Task.create(
+      final taskProvider = context.read<TaskProvider>();
+      
+      final task = await taskProvider.createTask(
         title: result.title!,
         priority: result.priority!,
         reason: result.reason,
         deadline: result.deadline,
       );
 
-      await StorageService.instance.storeTask(task);
-
-      if (context.mounted) {
+      if (context.mounted && task != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Task "${task.title}" created successfully!'),

@@ -258,6 +258,177 @@ void main() {
         }
       });
       
+      test('**Feature: voice-butler, Property 9: Automatic Task Cleanup** - For any soft-deleted task older than seven days, the system should automatically remove it permanently', () async {
+        // **Validates: Requirements 2.5**
+        
+        // Run property test with various scenarios
+        final testScenarios = [
+          {'daysOld': 8, 'shouldCleanup': true},
+          {'daysOld': 10, 'shouldCleanup': true},
+          {'daysOld': 30, 'shouldCleanup': true},
+          {'daysOld': 7, 'shouldCleanup': false}, // Exactly 7 days - should not cleanup
+          {'daysOld': 6, 'shouldCleanup': false},
+          {'daysOld': 1, 'shouldCleanup': false},
+          {'daysOld': 0, 'shouldCleanup': false},
+        ];
+        
+        for (int i = 0; i < testScenarios.length; i++) {
+          final scenario = testScenarios[i];
+          final daysOld = scenario['daysOld'] as int;
+          final shouldCleanup = scenario['shouldCleanup'] as bool;
+          
+          // Create a task and soft delete it
+          final task = Task.create(
+            title: 'Test Task $i',
+            priority: TaskPriority.medium,
+            reason: 'Test cleanup scenario',
+          );
+          
+          await storageService.storeTask(task);
+          
+          // Soft delete the task
+          final deletedTask = task.markSoftDeleted();
+          
+          // Simulate the task being deleted X days ago
+          final now = DateTime.now();
+          final deletionTime = now.subtract(Duration(days: daysOld));
+          final oldDeletedTask = deletedTask.copyWith(deletedAt: deletionTime);
+          
+          await storageService.updateTask(oldDeletedTask);
+          
+          // Verify task exists before cleanup
+          final taskBeforeCleanup = storageService.getTask(task.id);
+          expect(taskBeforeCleanup, isNotNull,
+              reason: 'Task should exist before cleanup');
+          expect(taskBeforeCleanup!.isDeleted, isTrue,
+              reason: 'Task should be soft deleted');
+          expect(taskBeforeCleanup.shouldAutoCleanup(), equals(shouldCleanup),
+              reason: 'Task cleanup eligibility should match expected for $daysOld days old');
+          
+          // Perform automatic cleanup
+          final cleanedCount = await storageService.performTaskAutoCleanup();
+          
+          // Verify cleanup behavior
+          final taskAfterCleanup = storageService.getTask(task.id);
+          
+          if (shouldCleanup) {
+            expect(taskAfterCleanup, isNull,
+                reason: 'Task older than 7 days should be permanently deleted');
+            expect(cleanedCount, greaterThanOrEqualTo(1),
+                reason: 'Cleanup should report at least 1 task cleaned');
+          } else {
+            expect(taskAfterCleanup, isNotNull,
+                reason: 'Task 7 days old or newer should not be cleaned up');
+            expect(taskAfterCleanup!.id, equals(task.id),
+                reason: 'Task should remain unchanged if not eligible for cleanup');
+          }
+        }
+      });
+      
+      test('Automatic cleanup handles multiple tasks correctly', () async {
+        final now = DateTime.now();
+        final tasksToCreate = <Task>[];
+        final taskIds = <String>{};
+        
+        // Create mix of tasks: some eligible for cleanup, some not
+        for (int i = 0; i < 10; i++) {
+          final task = Task.create(
+            title: 'Cleanup Test Task $i',
+            priority: TaskPriority.medium,
+          );
+          
+          await storageService.storeTask(task);
+          
+          // Soft delete the task
+          final deletedTask = task.markSoftDeleted();
+          
+          // Make half of them old enough for cleanup (8+ days), half not (6 days)
+          final daysOld = i < 5 ? 8 : 6;
+          final deletionTime = now.subtract(Duration(days: daysOld));
+          final timedDeletedTask = deletedTask.copyWith(deletedAt: deletionTime);
+          
+          await storageService.updateTask(timedDeletedTask);
+          tasksToCreate.add(timedDeletedTask);
+          taskIds.add(task.id);
+          
+          // Small delay to avoid ID collisions
+          await Future.delayed(const Duration(milliseconds: 2));
+        }
+        
+        // Verify all tasks exist before cleanup
+        for (final taskId in taskIds) {
+          final task = storageService.getTask(taskId);
+          expect(task, isNotNull, reason: 'All tasks should exist before cleanup');
+          expect(task!.isDeleted, isTrue, reason: 'All tasks should be soft deleted');
+        }
+        
+        // Perform cleanup
+        final cleanedCount = await storageService.performTaskAutoCleanup();
+        
+        // Verify cleanup results
+        expect(cleanedCount, greaterThanOrEqualTo(5),
+            reason: 'At least 5 tasks should be cleaned up (8+ days old)');
+        
+        // Check that old tasks are gone and recent tasks remain
+        int remainingTasks = 0;
+        int deletedTasks = 0;
+        
+        for (int i = 0; i < 10; i++) {
+          final taskId = tasksToCreate[i].id;
+          final task = storageService.getTask(taskId);
+          
+          if (i < 5) {
+            // These should be cleaned up (8 days old)
+            expect(task, isNull, 
+                reason: 'Task $i (8 days old) should be permanently deleted');
+            deletedTasks++;
+          } else {
+            // These should remain (6 days old)
+            expect(task, isNotNull, 
+                reason: 'Task $i (6 days old) should still exist');
+            remainingTasks++;
+          }
+        }
+        
+        expect(deletedTasks, equals(5), reason: '5 old tasks should be deleted');
+        expect(remainingTasks, equals(5), reason: '5 recent tasks should remain');
+      });
+      
+      test('Cleanup only affects soft-deleted tasks', () async {
+        final now = DateTime.now();
+        
+        // Create various types of tasks
+        final pendingTask = Task.create(title: 'Pending Task', priority: TaskPriority.medium);
+        final completedTask = Task.create(title: 'Completed Task', priority: TaskPriority.medium).markCompleted();
+        final oldSoftDeletedTask = Task.create(title: 'Old Soft Deleted', priority: TaskPriority.medium)
+            .markSoftDeleted()
+            .copyWith(deletedAt: now.subtract(const Duration(days: 10)));
+        
+        // Store all tasks
+        await storageService.storeTask(pendingTask);
+        await storageService.storeTask(completedTask);
+        await storageService.storeTask(oldSoftDeletedTask);
+        
+        // Verify all tasks exist before cleanup
+        expect(storageService.getTask(pendingTask.id), isNotNull);
+        expect(storageService.getTask(completedTask.id), isNotNull);
+        expect(storageService.getTask(oldSoftDeletedTask.id), isNotNull);
+        
+        // Perform cleanup
+        final cleanedCount = await storageService.performTaskAutoCleanup();
+        
+        // Verify only the old soft-deleted task was cleaned up
+        expect(storageService.getTask(pendingTask.id), isNotNull,
+            reason: 'Pending task should not be affected by cleanup');
+        expect(storageService.getTask(completedTask.id), isNotNull,
+            reason: 'Completed task should not be affected by cleanup');
+        expect(storageService.getTask(oldSoftDeletedTask.id), isNull,
+            reason: 'Old soft-deleted task should be permanently deleted');
+        
+        expect(cleanedCount, greaterThanOrEqualTo(1),
+            reason: 'At least 1 task should be cleaned up');
+      });
+      
       test('Bulk operations maintain consistency', () async {
         // Test bulk storage and retrieval
         final tasks = <Task>[];

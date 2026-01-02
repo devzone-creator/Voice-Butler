@@ -24,7 +24,18 @@ class AIService {
   static const Duration _requestTimeout = Duration(seconds: 30);
 
   bool get isInitialized => _isInitialized;
-  bool get hasApiKey => AppConfig.geminiApiKey.isNotEmpty;
+  
+  String get _apiKey {
+    // First check if stored in settings
+    final storedKey = StorageService.instance.getSetting<String>('gemini_api_key');
+    if (storedKey != null && storedKey.isNotEmpty) {
+      return storedKey;
+    }
+    // Fallback to AppConfig
+    return AppConfig.geminiApiKey;
+  }
+  
+  bool get hasApiKey => _apiKey.isNotEmpty;
 
   /// Initializes the AI service with Gemini API
   Future<bool> initialize() async {
@@ -36,7 +47,7 @@ class AIService {
 
       _model = GenerativeModel(
         model: AppConfig.geminiModel,
-        apiKey: AppConfig.geminiApiKey,
+        apiKey: _apiKey,
         generationConfig: GenerationConfig(
           temperature: 0.3, // Lower temperature for more consistent results
           topK: 40,
