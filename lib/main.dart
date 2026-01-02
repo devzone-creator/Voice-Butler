@@ -12,9 +12,9 @@ import 'core/services/background_service.dart';
 import 'features/tasks/providers/task_provider.dart';
 import 'features/voice/providers/voice_provider.dart';
 import 'features/ai/providers/ai_provider.dart';
-import 'features/automation/providers/automation_provider.dart';
-import 'features/automation/providers/rule_builder_provider.dart';
-import 'features/automation/providers/preset_workflow_provider.dart';
+// import 'features/automation/providers/automation_provider.dart';
+// import 'features/automation/providers/rule_builder_provider.dart';
+// import 'features/automation/providers/preset_workflow_provider.dart';
 import 'features/settings/providers/settings_provider.dart';
 
 void main() async {
@@ -49,23 +49,20 @@ class VoiceButlerApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TaskProvider()),
         ChangeNotifierProvider(create: (_) => VoiceProvider()),
         ChangeNotifierProvider(create: (_) => AIProvider()),
-        ChangeNotifierProvider(create: (_) => AutomationProvider()),
-        ChangeNotifierProvider(create: (_) => RuleBuilderProvider()),
+        // Temporarily disabled for demo
+        // ChangeNotifierProvider(create: (_) => AutomationProvider()),
+        // ChangeNotifierProvider(create: (_) => RuleBuilderProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
-        ChangeNotifierProxyProvider<AutomationProvider, PresetWorkflowProvider>(
-          create: (context) => PresetWorkflowProvider(
-            Provider.of<AutomationProvider>(context, listen: false),
-          ),
-          update: (context, automationProvider, previous) =>
-              previous ?? PresetWorkflowProvider(automationProvider),
-        ),
+        // ChangeNotifierProxyProvider<AutomationProvider, PresetWorkflowProvider>(
+        //   create: (context) => PresetWorkflowProvider(
+        //     Provider.of<AutomationProvider>(context, listen: false),
+        //   ),
+        //   update: (context, automationProvider, previous) =>
+        //       previous ?? PresetWorkflowProvider(automationProvider),
+        // ),
       ],
       builder: (context, child) {
-        // Connect automation provider to task provider
-        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-        final automationProvider = Provider.of<AutomationProvider>(context, listen: false);
-        taskProvider.setAutomationProvider(automationProvider);
-        
+        // Automation temporarily disabled for demo
         return child!;
       },
       child: MaterialApp.router(

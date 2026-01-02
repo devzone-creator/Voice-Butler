@@ -3,12 +3,10 @@ import '../../../core/models/task.dart';
 import '../../../core/models/activity_log.dart';
 import '../../../core/services/storage_service.dart';
 import '../repositories/task_repository.dart';
-import '../../automation/providers/automation_provider.dart';
 
 /// Provider for managing task state and operations
 class TaskProvider extends ChangeNotifier {
   final TaskRepository _repository = TaskRepository.instance;
-  AutomationProvider? _automationProvider;
 
   List<Task> _tasks = [];
   List<Task> _pendingTasks = [];
@@ -20,11 +18,6 @@ class TaskProvider extends ChangeNotifier {
   TaskProvider() {
     // Load tasks when provider is created
     initialize();
-  }
-
-  /// Sets the automation provider for triggering automation rules
-  void setAutomationProvider(AutomationProvider automationProvider) {
-    _automationProvider = automationProvider;
   }
 
   // Getters
@@ -79,9 +72,10 @@ class TaskProvider extends ChangeNotifier {
       await loadTasks(); // Refresh the lists
       
       // Trigger automation rules for task creation
-      if (_automationProvider != null) {
-        await _automationProvider!.onTaskCreated(createdTask);
-      }
+      // Temporarily disabled for demo
+      // if (_automationProvider != null) {
+      //   await _automationProvider!.onTaskCreated(createdTask);
+      // }
       
       return createdTask;
     } catch (e) {
@@ -128,10 +122,11 @@ class TaskProvider extends ChangeNotifier {
       await _logTaskCompletion('Task completed: "${task.title}"', task.id);
       
       // Trigger automation rules for task completion
-      if (_automationProvider != null) {
-        final completedTask = task.markCompleted();
-        await _automationProvider!.onTaskCompleted(completedTask);
-      }
+      // Temporarily disabled for demo
+      // if (_automationProvider != null) {
+      //   final completedTask = task.markCompleted();
+      //   await _automationProvider!.onTaskCompleted(completedTask);
+      // }
       
       return true;
     } catch (e) {
@@ -161,10 +156,11 @@ class TaskProvider extends ChangeNotifier {
       await _logTaskDeletion('Task moved to Recently Deleted: "${task.title}"', task.id);
       
       // Trigger automation rules for task deletion
-      if (_automationProvider != null) {
-        final deletedTask = task.markSoftDeleted();
-        await _automationProvider!.onTaskDeleted(deletedTask);
-      }
+      // Temporarily disabled for demo
+      // if (_automationProvider != null) {
+      //   final deletedTask = task.markSoftDeleted();
+      //   await _automationProvider!.onTaskDeleted(deletedTask);
+      // }
       
       return true;
     } catch (e) {

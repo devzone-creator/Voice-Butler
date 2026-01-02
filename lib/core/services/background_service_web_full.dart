@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../app_config.dart';
 import '../models/task.dart';
 import 'storage_service.dart';
 import 'notification_service.dart';
@@ -13,7 +12,6 @@ class BackgroundService {
 
   Timer? _cleanupTimer;
   Timer? _reminderCheckTimer;
-  final Map<String, Timer> _scheduledReminders = {};
 
   Future<void> initialize() async {
     if (kDebugMode) {
@@ -56,51 +54,49 @@ class BackgroundService {
         print('Running cleanup task');
       }
 
-      final deletedCount ;
+      final deletedCount = await StorageService.instance.performTaskAutoCleanup();
       
-
-        print('Cleanup completed: $dele;
+      if (kDebugMode) {
+        print('Cleanup completed: $deletedCount tasks removed');
       }
-    } catch (e) {
-      if (de) {
-        print('Error in cle;
-      }
-    }
-  }
-
-  /// Checks for schedudue
-  Future<void> _checkScheduledReminders()
-    try {
-      final tasks = StorageService.instance.getAllTasks();
-      final now();
-
-      for (final t{
-        if (task.deadline != nul 
-            task.status == TaskStatus.pending && 
-           
-          
-       
-          
-          // Send remin4 hours
-          if (hoursUntilDeadline <= 24 && h 0) {
-       
-     
-    }
-
     } catch (e) {
       if (kDebugMode) {
-        p
+        print('Error in cleanup task: $e');
       }
     }
   }
-
-  /// Sends a task reminder notification
-  Future<void> _sendTaskReminder(Task task) async{
+  /// Checks for scheduled reminders that are due
+  Future<void> _checkScheduledReminders() async {
     try {
-      awai(
+      final tasks = StorageService.instance.getAllTasks();
+      final now = DateTime.now();
+
+      for (final task in tasks) {
+        if (task.deadline != null && 
+            task.status == TaskStatus.pending && 
+            !task.isDeleted) {
+          
+          final hoursUntilDeadline = task.deadline!.difference(now).inHours;
+          
+          // Send reminder within 24 hours
+          if (hoursUntilDeadline <= 24 && hoursUntilDeadline > 0) {
+            await _sendTaskReminder(task);
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking scheduled reminders: $e');
+      }
+    }
+  }
+  /// Sends a task reminder notification
+  Future<void> _sendTaskReminder(Task task) async {
+    try {
+      await NotificationService.instance.showNotification(
         title: 'Task Reminder',
-        message: 'Task "${task.title}" deadline is aaching',
-id,
+        message: 'Task "${task.title}" deadline is approaching',
+        taskId: task.id,
       );
     } catch (e) {
       if (kDebugMode) {
@@ -108,75 +104,6 @@ id,
       }
     }
   }
-
-  /// Schedule a background job
-  Future<void
-
-    required Duration delay,
-    required Map<String, dynama,
-  }) async {
-    if (kDebugMode) {
-      print('Selay');
-    }
-
-    // b
-    Timer(delay, 
-      await _executeJobta);
-    });
-  }
-
-  /
-nc {
-    try {
-      switch (jobName) {
-        case 'task_re':
-          await _handleTaskReminder(data);
-       break;
-   asks':
-
-          break;
-        default:
-          if (kDebugMode) {
-            print('Unknown job ex
-          }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-
-      }
-    }
-  }
-
-  /// Handle tajob
-  Futur {
- {
-      final taskId = data['taskId'] as String?;
-      ?;
-      
-      if (taskId != null && message != null) {
-      cation(
-          title: 'Task Reminder',
-          message: message,
-          taskId: taskId,
-        );
-      }
-{
-      if (kDebugMode) {
- $e');
-      }
-    }
-  }
-
-  void dispose() {
-    _cleanupTimer?.cancel();
-    _re
-    f
-   
-    }
-    _scheduledReminders.clear();
-  }
-}
-
   /// Schedule a background job
   Future<void> scheduleJob({
     required String jobName,
@@ -192,7 +119,6 @@ nc {
       await _executeJob(jobName, data);
     });
   }
-
   /// Execute a background job
   Future<void> _executeJob(String jobName, Map<String, dynamic> data) async {
     try {
@@ -214,7 +140,6 @@ nc {
       }
     }
   }
-
   /// Handle task reminder job
   Future<void> _handleTaskReminder(Map<String, dynamic> data) async {
     try {
@@ -234,3 +159,9 @@ nc {
       }
     }
   }
+
+  void dispose() {
+    _cleanupTimer?.cancel();
+    _reminderCheckTimer?.cancel();
+  }
+}
