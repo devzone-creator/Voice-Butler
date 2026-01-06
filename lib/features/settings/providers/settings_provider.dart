@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../../../core/services/storage_service.dart';
-import '../../../core/services/ai_service.dart';
+import '../../../core/services/backend_ai_service.dart';
 
 class SettingsProvider extends ChangeNotifier {
   final StorageService _storageService = StorageService.instance;
@@ -208,7 +208,6 @@ class SettingsProvider extends ChangeNotifier {
     try {
       final result = await _storageService.performActivityLogMaintenance(
         maxLogsToKeep: _maxLogsToKeep,
-        maxDaysToKeep: _maxLogRetentionDays,
         notifyUser: false, // Don't create notification logs during manual cleanup
       );
       
@@ -216,7 +215,7 @@ class SettingsProvider extends ChangeNotifier {
       notifyListeners();
       
       if (kDebugMode) {
-        print('Manual cleanup completed: ${result.summaryMessage}');
+        print('Manual cleanup completed: ${result['message']}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -240,7 +239,7 @@ class SettingsProvider extends ChangeNotifier {
       
       // Reinitialize AI service with new key
       try {
-        await AIService.instance.initialize();
+        await BackendAIService.instance.initialize();
       } catch (e) {
         if (kDebugMode) {
           print('Failed to reinitialize AI service: $e');

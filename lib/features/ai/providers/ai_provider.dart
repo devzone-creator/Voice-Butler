@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
-import '../../../core/services/ai_service.dart';
+import '../../../core/services/backend_ai_service.dart';
 import '../../../core/models/task.dart';
 
-/// Provider for managing AI service state and operations
+// Re-export the result classes from backend service to avoid conflicts
+export '../../../core/services/backend_ai_service.dart' show TaskIntentResult, AutomationRuleResult;
+
+/// Provider for managing backend AI service state and operations
 class AIProvider extends ChangeNotifier {
-  final AIService _aiService = AIService.instance;
+  final BackendAIService _aiService = BackendAIService.instance;
   
   bool _isInitialized = false;
   bool _isProcessing = false;
@@ -15,7 +18,8 @@ class AIProvider extends ChangeNotifier {
   // Getters
   bool get isInitialized => _isInitialized;
   bool get isProcessing => _isProcessing;
-  bool get hasApiKey => _aiService.hasApiKey;
+  bool get hasBackendConnection => _aiService.isInitialized;
+  bool get hasApiKey => hasBackendConnection; // Compatibility getter
   String? get lastError => _lastError;
   TaskIntentResult? get lastTaskResult => _lastTaskResult;
   AutomationRuleResult? get lastRuleResult => _lastRuleResult;
@@ -33,8 +37,8 @@ class AIProvider extends ChangeNotifier {
       final success = await _aiService.initialize();
       _isInitialized = success;
       
-      if (!success && !_aiService.hasApiKey) {
-        _setError('Gemini API key not configured. AI features will be limited.');
+      if (!success) {
+        _setError('Backend AI service initialization failed. AI features will be limited.');
       }
     } catch (e) {
       _setError('Failed to initialize AI service: $e');
@@ -227,7 +231,7 @@ class AIProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Gets AI service statistics
+  /// Gets backend AI service statistics
   Map<String, dynamic> getStatistics() {
     return {
       'providerInitialized': _isInitialized,

@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../app_config.dart';
 import '../models/task.dart';
 import '../models/automation_rule.dart';
 import '../models/activity_log.dart';
+import '../models/preset_workflow.dart';
 
 
 class StorageService {
@@ -622,30 +624,6 @@ class StorageService {
       ...getCacheStatistics(),
     };
   }
-}
-  // ==================== PRESET WORKFLOW MANAGEMENT ====================
-
-  /// Gets all preset workflows
-  List<dynamic> getAllPresetWorkflows() {
-    // Placeholder implementation - preset workflows not fully implemented
-    return [];
-  }
-
-  /// Stores a preset workflow
-  Future<void> storePresetWorkflow(dynamic workflow) async {
-    // Placeholder implementation - preset workflows not fully implemented
-    if (kDebugMode) {
-      print('Preset workflow storage not implemented');
-    }
-  }
-
-  /// Deletes a preset workflow
-  Future<void> deletePresetWorkflow(String workflowId) async {
-    // Placeholder implementation - preset workflows not fully implemented
-    if (kDebugMode) {
-      print('Preset workflow deletion not implemented');
-    }
-  }
 
   // ==================== ACTIVITY LOG MAINTENANCE ====================
 
@@ -704,7 +682,54 @@ class StorageService {
     );
   }
 
-  /// Deletes a task (alias for permanentlyDeleteTask)
-  Future<void> deleteTask(String taskId) async {
-    await permanentlyDeleteTask(taskId);
+  /// Deletes a task (supports both soft and permanent deletion)
+  Future<void> deleteTask(String taskId, {bool permanent = false}) async {
+    if (permanent) {
+      await permanentlyDeleteTask(taskId);
+    } else {
+      // Soft delete: mark task as soft deleted
+      final task = getTask(taskId);
+      if (task != null) {
+        final softDeletedTask = task.markSoftDeleted();
+        await updateTask(softDeletedTask);
+      }
+    }
   }
+
+  /// Gets all preset workflows
+  List<PresetWorkflow> getAllPresetWorkflows() {
+    try {
+      final box = Hive.box<PresetWorkflow>(AppConfig.presetWorkflowsBoxKey);
+      return box.values.toList();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to get preset workflows: $e');
+      }
+      return [];
+    }
+  }
+
+  /// Stores a preset workflow
+  Future<void> storePresetWorkflow(PresetWorkflow workflow) async {
+    try {
+      final box = Hive.box<PresetWorkflow>(AppConfig.presetWorkflowsBoxKey);
+      await box.put(workflow.id, workflow);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to store preset workflow: $e');
+      }
+    }
+  }
+
+  /// Deletes a preset workflow
+  Future<void> deletePresetWorkflow(String workflowId) async {
+    try {
+      final box = Hive.box<PresetWorkflow>(AppConfig.presetWorkflowsBoxKey);
+      await box.delete(workflowId);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to delete preset workflow: $e');
+      }
+    }
+  }
+}

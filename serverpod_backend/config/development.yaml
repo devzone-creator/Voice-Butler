@@ -1,0 +1,28 @@
+# Configuration for Serverpod development server
+apiServer:
+  port: 8080
+  publicHost: localhost
+  publicPort: 8080
+  publicScheme: http
+
+# Database configuration (optional for now)
+database:
+  host: localhost
+  port: 5432
+  name: voice_butler
+  user: postgres
+  password: ''
+  requireSsl: false
+  isUnixSocket: false
+
+# Redis configuration (optional)
+redis:
+  enabled: false
+
+# Web server configuration (optional)
+webServer:
+  enabled: false
+
+# Insights configuration (optional)
+insights:
+  enabled: false

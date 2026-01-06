@@ -5,7 +5,7 @@ import '../../voice/providers/voice_provider.dart';
 import '../../voice/widgets/widgets.dart';
 import '../../ai/providers/ai_provider.dart';
 import '../../tasks/providers/task_provider.dart';
-import '../../../core/services/ai_service.dart';
+import '../../../core/services/backend_ai_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

@@ -8,6 +8,8 @@ import 'core/router/app_router.dart';
 import 'core/services/storage_service.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/background_service.dart';
+import 'core/services/serverpod_client.dart';
+import 'core/services/backend_ai_service.dart';
 
 import 'features/tasks/providers/task_provider.dart';
 import 'features/voice/providers/voice_provider.dart';
@@ -26,6 +28,10 @@ void main() async {
   // Initialize services
   await StorageService.instance.initialize();
   await NotificationService.instance.initialize();
+  
+  // Initialize Serverpod client and backend AI service
+  await ServerpodClientService.instance.initialize();
+  await BackendAIService.instance.initialize();
   
   // Initialize background service (web-compatible)
   try {

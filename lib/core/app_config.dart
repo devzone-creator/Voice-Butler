@@ -15,20 +15,10 @@ class AppConfig {
   // Soft Delete Configuration
   static const int softDeleteRetentionDays = 7;
   
-  // AI Configuration
-  static String get geminiApiKey {
-    // First try environment variable (for build-time configuration)
-    const envKey = String.fromEnvironment('GEMINI_API_KEY');
-    if (envKey.isNotEmpty) {
-      return envKey;
-    }
-    
-    // Fallback to default key for demo/hackathon (you can set this)
-    // For production, this should be configured in settings
-    const defaultKey = 'AIzaSyBIN95KrHiBZy5ObyxKo-PR7dSNgiSV8LQ';
-    return defaultKey;
-  }
+  // Serverpod Configuration
+  static const String serverpodUrl = 'http://localhost:8080/';
   
+  // AI Configuration (server-side only)
   static const String geminiModel = 'gemini-2.0-flash';
   
   // Notification Configuration
